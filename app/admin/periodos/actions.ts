@@ -4,7 +4,7 @@ import { requireAdmin } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import type { Criterion } from '@/lib/types'
 
-// Fim do dia em Lisboa para uma data "AAAA-MM-DD"
+// Fim do dia para uma data "AAAA-MM-DD"
 function endOfDay(date: string) {
   return new Date(`${date}T23:59:59`).toISOString()
 }
@@ -32,15 +32,25 @@ export async function createPeriod(formData: FormData) {
       )
     }
   }
-  revalidatePath('/admin', 'layout')
+  revalidatePath('/', 'layout')
 }
 
-export async function updateDeadline(formData: FormData) {
+export async function updatePeriod(formData: FormData) {
   await requireAdmin()
+  const name = String(formData.get('name') ?? '').trim()
+  const deadline = String(formData.get('deadline') ?? '')
+  if (!name || !deadline) return
   await createClient().from('periods')
-    .update({ deadline: endOfDay(String(formData.get('deadline'))) })
+    .update({ name, deadline: endOfDay(deadline) })
     .eq('id', String(formData.get('id')))
-  revalidatePath('/admin', 'layout')
+  revalidatePath('/', 'layout')
+}
+
+// Apaga o período com os seus critérios e avaliações (on delete cascade)
+export async function deletePeriod(formData: FormData) {
+  await requireAdmin()
+  await createClient().from('periods').delete().eq('id', String(formData.get('id')))
+  revalidatePath('/', 'layout')
 }
 
 export async function saveCriteria(formData: FormData) {
@@ -53,10 +63,36 @@ export async function saveCriteria(formData: FormData) {
     description: String(formData.get(`desc-${id}`) ?? '').trim(),
     weight: Number(formData.get(`weight-${id}`) ?? 0),
   }))
-  const total = rows.reduce((n, r) => n + r.weight, 0)
-  if (total !== 100) throw new Error(`Os pesos têm de somar 100% (actual: ${total}%).`)
+  // O editor já impede guardar se os pesos não somarem 100
+  if (rows.reduce((n, r) => n + r.weight, 0) !== 100) return
   for (const r of rows) {
     await supabase.from('criteria').update({ name: r.name, description: r.description, weight: r.weight }).eq('id', r.id)
   }
-  revalidatePath('/admin', 'layout')
+  revalidatePath('/', 'layout')
+}
+
+export async function addCriterion(formData: FormData) {
+  await requireAdmin()
+  const supabase = createClient()
+  const periodId = String(formData.get('period_id'))
+  const name = String(formData.get('name') ?? '').trim()
+  if (!name) return
+  const { data: last } = await supabase.from('criteria').select('position')
+    .eq('period_id', periodId).order('position', { ascending: false }).limit(1).maybeSingle()
+  await supabase.from('criteria').insert({
+    period_id: periodId,
+    position: (last?.position ?? 0) + 1,
+    name,
+    description: String(formData.get('description') ?? '').trim(),
+    weight: 0,
+  })
+  // Avaliações já submetidas ficam incompletas: voltam a rascunho para o engenheiro completar
+  await supabase.from('evaluations').update({ submitted: false }).eq('period_id', periodId)
+  revalidatePath('/', 'layout')
+}
+
+export async function deleteCriterion(formData: FormData) {
+  await requireAdmin()
+  await createClient().from('criteria').delete().eq('id', String(formData.get('delete_id')))
+  revalidatePath('/', 'layout')
 }

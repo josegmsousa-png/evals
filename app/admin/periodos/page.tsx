@@ -1,14 +1,21 @@
 import Shell from '@/components/Shell'
+import ConfirmButton from '@/components/ConfirmButton'
 import { requireAdmin } from '@/lib/auth'
 import { getPeriods, isOpen, formatDate } from '@/lib/period'
 import { createClient } from '@/lib/supabase/server'
 import type { Criterion } from '@/lib/types'
-import { createPeriod, saveCriteria, updateDeadline } from './actions'
+import CriteriaEditor from './CriteriaEditor'
+import { createPeriod, deletePeriod, updatePeriod } from './actions'
 
 export default async function Periodos() {
   const me = await requireAdmin()
   const periods = await getPeriods()
-  const { data: criteria } = await createClient().from('criteria').select('*').order('position')
+  const supabase = createClient()
+  const [{ data: criteria }, { data: evals }] = await Promise.all([
+    supabase.from('criteria').select('*').order('position'),
+    supabase.from('evaluations').select('period_id'),
+  ])
+  const evalCount = (id: string) => (evals ?? []).filter((e) => e.period_id === id).length
   const year = new Date().getFullYear()
 
   return (
@@ -30,39 +37,32 @@ export default async function Periodos() {
 
       {periods.map((p) => {
         const crit = ((criteria as Criterion[]) ?? []).filter((c) => c.period_id === p.id)
+        const n = evalCount(p.id)
         return (
           <section key={p.id} className="card mt-6 p-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h2 className="font-semibold">{p.name}</h2>
-                <p className="text-sm text-slate-500">
-                  {isOpen(p) ? 'Aberto' : 'Fechado'} · prazo {formatDate(p.deadline)}
-                </p>
+            <form action={updatePeriod} className="flex flex-wrap items-end gap-3">
+              <input type="hidden" name="id" value={p.id} />
+              <div className="flex-1 min-w-[200px]">
+                <label className="label">Nome</label>
+                <input name="name" className="input font-medium" defaultValue={p.name} required />
               </div>
-              <form action={updateDeadline} className="flex items-center gap-2">
-                <input type="hidden" name="id" value={p.id} />
-                <input name="deadline" type="date" className="input w-auto" defaultValue={p.deadline.slice(0, 10)} />
-                <button className="btn-ghost">Alterar prazo</button>
-              </form>
-            </div>
+              <div>
+                <label className="label">Prazo</label>
+                <input name="deadline" type="date" className="input" defaultValue={p.deadline.slice(0, 10)} required />
+              </div>
+              <button className="btn-ghost">Guardar</button>
+              <ConfirmButton formAction={deletePeriod} className="btn text-red-600 hover:bg-red-50"
+                message={`Apagar "${p.name}"?${n ? ` Também apaga as ${n} avaliações feitas neste período.` : ''} Não é possível desfazer.`}>
+                Apagar
+              </ConfirmButton>
+            </form>
+            <p className="mt-2 text-sm text-slate-500">
+              {isOpen(p) ? 'Aberto' : 'Fechado'} · prazo {formatDate(p.deadline)} · {n} avaliações
+            </p>
 
             <details className="mt-4">
               <summary className="cursor-pointer text-sm text-brand-700">Critérios e pesos ({crit.length})</summary>
-              <form action={saveCriteria} className="mt-4 space-y-3">
-                {crit.map((c) => (
-                  <div key={c.id} className="grid gap-2 md:grid-cols-[1fr_90px] rounded-lg border border-slate-200 p-3">
-                    <input type="hidden" name="cid" value={c.id} />
-                    <input name={`name-${c.id}`} className="input font-medium" defaultValue={c.name} />
-                    <div className="flex items-center gap-1">
-                      <input name={`weight-${c.id}`} type="number" min={0} max={100} className="input" defaultValue={c.weight} />
-                      <span className="text-sm text-slate-500">%</span>
-                    </div>
-                    <textarea name={`desc-${c.id}`} className="input md:col-span-2" rows={2} defaultValue={c.description} />
-                  </div>
-                ))}
-                <p className="text-xs text-slate-500">Os pesos têm de somar 100%. Alterar pesos recalcula as notas deste período.</p>
-                <button className="btn-primary">Guardar critérios</button>
-              </form>
+              <CriteriaEditor key={crit.map((c) => `${c.id}:${c.weight}`).join()} periodId={p.id} criteria={crit} />
             </details>
           </section>
         )
