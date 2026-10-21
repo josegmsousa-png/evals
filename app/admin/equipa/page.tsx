@@ -2,7 +2,8 @@ import Shell from '@/components/Shell'
 import { requireAdmin } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import type { Profile, Technician } from '@/lib/types'
-import { addPerson, addTechnician, setTechnicianActive, updatePerson } from './actions'
+import { tempPassword } from '@/lib/password'
+import { addPerson, addTechnician, resetPassword, setTechnicianActive, updatePerson } from './actions'
 
 export default async function Equipa() {
   const me = await requireAdmin()
@@ -18,10 +19,16 @@ export default async function Equipa() {
       <div className="mt-6 grid gap-6 md:grid-cols-2">
         <section className="card p-6">
           <h2 className="font-semibold">Engenheiros</h2>
-          <p className="text-sm text-slate-500 mt-1">Quem avalia. Entram com o email no ecrã de login.</p>
+          <p className="text-sm text-slate-500 mt-1">
+            Quem avalia. Dá-lhes o email e a palavra-passe temporária; na primeira entrada definem uma nova.
+          </p>
           <form action={addPerson} className="mt-4 space-y-2">
             <input name="name" className="input" placeholder="Nome" required />
             <input name="email" type="email" className="input" placeholder="email@empresa.pt" required />
+            <div>
+              <label className="label">Palavra-passe temporária</label>
+              <input name="password" className="input font-mono" defaultValue={tempPassword()} minLength={8} required />
+            </div>
             <div className="flex gap-2">
               <select name="role" className="input">
                 <option value="engineer">Engenheiro</option>
@@ -38,12 +45,25 @@ export default async function Equipa() {
                   <div className="text-xs text-slate-500 truncate">{p.email}</div>
                 </div>
                 {p.role === 'admin' && <span className="chip bg-brand-100 text-brand-700">admin</span>}
+                {p.must_change_password && <span className="chip bg-amber-100 text-amber-700">1.ª entrada</span>}
                 {p.id !== me.id && (
-                  <form action={updatePerson} className="ml-auto">
-                    <input type="hidden" name="id" value={p.id} />
-                    <input type="hidden" name="active" value={String(!p.active)} />
-                    <button className="text-xs text-slate-500 hover:text-slate-900">{p.active ? 'Desactivar' : 'Reactivar'}</button>
-                  </form>
+                  <div className="ml-auto flex items-center gap-3 shrink-0">
+                    <details className="relative">
+                      <summary className="cursor-pointer list-none text-xs text-slate-500 hover:text-slate-900">Repor palavra-passe</summary>
+                      <form action={resetPassword} className="absolute right-0 z-10 mt-2 w-64 card p-3 space-y-2">
+                        <input type="hidden" name="id" value={p.id} />
+                        <label className="label">Nova palavra-passe temporária</label>
+                        <input name="password" className="input font-mono" defaultValue={tempPassword()} minLength={8} required />
+                        <button className="btn-primary w-full">Repor</button>
+                        <p className="text-xs text-slate-500">Terá de a mudar na próxima entrada.</p>
+                      </form>
+                    </details>
+                    <form action={updatePerson}>
+                      <input type="hidden" name="id" value={p.id} />
+                      <input type="hidden" name="active" value={String(!p.active)} />
+                      <button className="text-xs text-slate-500 hover:text-slate-900">{p.active ? 'Desactivar' : 'Reactivar'}</button>
+                    </form>
+                  </div>
                 )}
               </li>
             ))}

@@ -4,6 +4,7 @@ export type Profile = {
   name: string
   role: 'admin' | 'engineer'
   active: boolean
+  must_change_password: boolean
 }
 
 export type Technician = { id: string; name: string; active: boolean }

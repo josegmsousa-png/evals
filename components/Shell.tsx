@@ -18,7 +18,9 @@ export default function Shell({ profile, children }: { profile: Profile; childre
             )}
           </nav>
           <div className="ml-auto flex items-center gap-3 text-sm">
-            <span className="hidden sm:inline text-slate-500">{profile.name || profile.email}</span>
+            <Link href="/palavra-passe" className="hidden sm:inline text-slate-500 hover:text-slate-900" title="Mudar palavra-passe">
+              {profile.name || profile.email}
+            </Link>
             <form action="/auth/signout" method="post">
               <button className="text-slate-500 hover:text-slate-900">Sair</button>
             </form>
