@@ -30,14 +30,14 @@ export default async function Avaliar() {
     <Shell profile={profile}>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">{period.name}</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold">{period.name}</h1>
           <p className="text-sm text-slate-500 mt-1">
             {open ? `Podes editar até ${formatDate(period.deadline)}` : `Fechado desde ${formatDate(period.deadline)}`}
           </p>
         </div>
-        <div className="text-right">
+        <div className="w-full sm:w-auto sm:text-right">
           <div className="text-sm text-slate-500">{done} de {list.length} submetidas</div>
-          <div className="mt-1 h-2 w-48 rounded-full bg-slate-200 overflow-hidden">
+          <div className="mt-1 h-2 w-full sm:w-48 rounded-full bg-slate-200 overflow-hidden">
             <div className="h-full bg-brand-500" style={{ width: `${list.length ? (done / list.length) * 100 : 0}%` }} />
           </div>
         </div>
@@ -48,12 +48,12 @@ export default async function Avaliar() {
           const ev = byTech.get(t.id)
           const score = ev ? computeScore((criteria as Criterion[]) ?? [], ev.scores) : null
           return (
-            <Link key={t.id} href={`/avaliar/${t.id}`} className="flex items-center gap-4 px-5 py-4 hover:bg-slate-50">
-              <div className="h-9 w-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-sm font-semibold">
+            <Link key={t.id} href={`/avaliar/${t.id}`} className="flex items-center gap-3 px-4 py-3.5 sm:gap-4 sm:px-5 sm:py-4 hover:bg-slate-50">
+              <div className="h-9 w-9 shrink-0 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-sm font-semibold">
                 {t.name.split(' ').map((w) => w[0]).slice(0, 2).join('')}
               </div>
-              <span className="font-medium">{t.name}</span>
-              <span className="ml-auto flex items-center gap-3">
+              <span className="min-w-0 truncate font-medium">{t.name}</span>
+              <span className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
                 {score != null && <ScoreBadge score={score} />}
                 {ev?.submitted
                   ? <span className="chip bg-green-100 text-green-700">Submetida</span>

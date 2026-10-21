@@ -55,11 +55,11 @@ export default function EvalForm({ periodId, technicianId, criteria, initial, re
   }
 
   return (
-    <div className="pb-28">
+    <div className="pb-32">
       {criteria.map((c, i) => {
         const s = scores[c.id]
         return (
-          <section key={c.id} className="card mt-4 p-6">
+          <section key={c.id} className="card mt-4 p-4 sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <h2 className="font-semibold">
                 <span className="text-slate-400 mr-2">{i + 1}.</span>{c.name}
@@ -68,16 +68,21 @@ export default function EvalForm({ periodId, technicianId, criteria, initial, re
             </div>
             {c.description && <p className="mt-1 text-sm text-slate-500">{c.description}</p>}
 
-            <div className="mt-4 grid grid-cols-5 gap-2">
+            {/* Telemóvel: lista vertical tipo escolha múltipla. Desktop: 5 botões lado a lado */}
+            <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-5">
               {LEVELS.map((l, idx) => {
                 const active = s?.level === idx
                 return (
                   <button key={l.label} type="button" disabled={readOnly}
                     onClick={() => update(c.id, { level: idx })}
-                    className="rounded-lg border-2 px-1 py-2.5 text-sm font-medium transition disabled:cursor-default"
+                    className="flex items-center gap-3 rounded-lg border-2 px-3 py-2.5 text-left text-sm font-medium transition disabled:cursor-default sm:justify-center sm:px-1 sm:text-center"
                     style={active
                       ? { borderColor: l.color, backgroundColor: l.color, color: 'white' }
                       : { borderColor: '#e2e8f0', color: '#475569' }}>
+                    <span className="sm:hidden h-4 w-4 shrink-0 rounded-full border-2 flex items-center justify-center"
+                      style={{ borderColor: active ? 'white' : '#cbd5e1' }}>
+                      {active && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+                    </span>
                     {l.label}
                   </button>
                 )
@@ -91,15 +96,15 @@ export default function EvalForm({ periodId, technicianId, criteria, initial, re
         )
       })}
 
-      <div className="fixed inset-x-0 bottom-0 border-t border-slate-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto max-w-2xl px-4 py-3 flex items-center gap-4">
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 backdrop-blur pb-[env(safe-area-inset-bottom)]">
+        <div className="mx-auto max-w-2xl px-4 py-3 flex items-center gap-3 sm:gap-4">
           <div>
             <div className="text-xs text-slate-500">Classificação</div>
             <div className="text-xl font-bold tabular-nums">
               {formatScore(score)} <span className="text-sm font-normal text-slate-400">/ {MAX_SCORE}</span>
             </div>
           </div>
-          <div className="text-xs text-slate-500">
+          <div className="min-w-0 text-xs text-slate-500">
             {answered}/{criteria.length} critérios
             <br />
             {readOnly ? 'Só leitura'
@@ -109,7 +114,7 @@ export default function EvalForm({ periodId, technicianId, criteria, initial, re
               : submitted ? 'Submetida · gravado' : 'Rascunho gravado'}
           </div>
           {!readOnly && (
-            <button className="btn-primary ml-auto" disabled={!complete || pending} onClick={submit}>
+            <button className="btn-primary ml-auto shrink-0" disabled={!complete || pending} onClick={submit}>
               {pending ? 'A submeter…' : submitted ? 'Actualizar' : 'Submeter'}
             </button>
           )}

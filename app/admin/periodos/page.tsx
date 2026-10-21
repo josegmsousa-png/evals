@@ -20,9 +20,9 @@ export default async function Periodos() {
 
   return (
     <Shell profile={me}>
-      <h1 className="text-2xl font-semibold">Períodos de avaliação</h1>
+      <h1 className="text-xl sm:text-2xl font-semibold">Períodos de avaliação</h1>
 
-      <form action={createPeriod} className="card mt-6 p-6 flex flex-wrap items-end gap-3">
+      <form action={createPeriod} className="card mt-6 p-4 sm:p-6 flex flex-wrap items-end gap-3">
         <div className="flex-1 min-w-[200px]">
           <label className="label">Nome</label>
           <input name="name" className="input" defaultValue={`Avaliação ${year}`} required />
@@ -39,7 +39,7 @@ export default async function Periodos() {
         const crit = ((criteria as Criterion[]) ?? []).filter((c) => c.period_id === p.id)
         const n = evalCount(p.id)
         return (
-          <section key={p.id} className="card mt-6 p-6">
+          <section key={p.id} className="card mt-6 p-4 sm:p-6">
             <form action={updatePeriod} className="flex flex-wrap items-end gap-3">
               <input type="hidden" name="id" value={p.id} />
               <div className="flex-1 min-w-[200px]">

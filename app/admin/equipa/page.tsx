@@ -20,9 +20,9 @@ export default async function Equipa() {
 
   return (
     <Shell profile={me}>
-      <h1 className="text-2xl font-semibold">Equipa</h1>
+      <h1 className="text-xl sm:text-2xl font-semibold">Equipa</h1>
       <div className="mt-6 grid gap-6 md:grid-cols-2">
-        <section className="card p-6">
+        <section className="card p-4 sm:p-6">
           <h2 className="font-semibold">Engenheiros</h2>
           <p className="text-sm text-slate-500 mt-1">
             Quem avalia. Dá-lhes o email e a palavra-passe temporária; na primeira entrada definem uma nova.
@@ -44,15 +44,15 @@ export default async function Equipa() {
           </form>
           <ul className="mt-5 divide-y divide-slate-100">
             {((people as Profile[]) ?? []).map((p) => (
-              <li key={p.id} className={`py-3 flex items-center gap-3 ${p.active ? '' : 'opacity-50'}`}>
-                <div className="min-w-0">
+              <li key={p.id} className={`py-3 flex flex-wrap items-center gap-x-3 gap-y-2 ${p.active ? '' : 'opacity-50'}`}>
+                <div className="min-w-0 flex-1 sm:flex-none">
                   <div className="font-medium truncate">{p.name || p.email}</div>
                   <div className="text-xs text-slate-500 truncate">{p.email}</div>
                 </div>
                 {p.role === 'admin' && <span className="chip bg-brand-100 text-brand-700">admin</span>}
                 {p.must_change_password && <span className="chip bg-amber-100 text-amber-700">1.ª entrada</span>}
                 {p.id !== me.id && (
-                  <div className="ml-auto flex items-center gap-3 shrink-0">
+                  <div className="w-full sm:w-auto sm:ml-auto flex items-center justify-end gap-4 sm:gap-3 shrink-0">
                     <details className="relative">
                       <summary className="cursor-pointer list-none text-xs text-slate-500 hover:text-slate-900">Repor palavra-passe</summary>
                       <form action={resetPassword} className="absolute right-0 z-10 mt-2 w-64 card p-3 space-y-2">
@@ -82,7 +82,7 @@ export default async function Equipa() {
           </ul>
         </section>
 
-        <section className="card p-6">
+        <section className="card p-4 sm:p-6">
           <h2 className="font-semibold">Técnicos</h2>
           <p className="text-sm text-slate-500 mt-1">
             Quem é avaliado. Não têm acesso à aplicação. Desactivar esconde-o das avaliações mas mantém o histórico.
@@ -93,9 +93,9 @@ export default async function Equipa() {
           </form>
           <ul className="mt-5 divide-y divide-slate-100">
             {((techs as Technician[]) ?? []).map((t) => (
-              <li key={t.id} className={`py-3 flex items-center ${t.active ? '' : 'opacity-50'}`}>
-                <span className="font-medium">{t.name}</span>
-                <div className="ml-auto flex items-center gap-3">
+              <li key={t.id} className={`py-3 flex items-center gap-3 ${t.active ? '' : 'opacity-50'}`}>
+                <span className="min-w-0 truncate font-medium">{t.name}</span>
+                <div className="ml-auto flex shrink-0 items-center gap-4 sm:gap-3">
                   <form action={setTechnicianActive}>
                     <input type="hidden" name="id" value={t.id} />
                     <input type="hidden" name="active" value={String(!t.active)} />

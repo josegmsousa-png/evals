@@ -17,23 +17,27 @@ export default function CriteriaEditor({ periodId, criteria }: { periodId: strin
         {criteria.map((c, i) => (
           <div key={c.id} className="rounded-lg border border-slate-200 p-3 space-y-2">
             <input type="hidden" name="cid" value={c.id} />
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-slate-400 w-5">{i + 1}.</span>
-              <input name={`name-${c.id}`} className="input font-medium" defaultValue={c.name} required />
-              <input name={`weight-${c.id}`} type="number" min={0} max={100} className="input w-20"
-                defaultValue={c.weight}
-                onChange={(e) => setWeights((w) => ({ ...w, [c.id]: Number(e.target.value) || 0 }))} />
-              <span className="text-sm text-slate-500">%</span>
-              <ConfirmButton formAction={deleteCriterion} name="delete_id" value={c.id}
-                message={`Remover o critério "${c.name}"? As respostas a este critério deixam de contar.`}
-                className="text-xs text-red-600 hover:text-red-800 shrink-0 ml-1">
-                Remover
-              </ConfirmButton>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <div className="flex min-w-0 flex-1 items-center gap-2">
+                <span className="text-sm text-slate-400 w-5 shrink-0">{i + 1}.</span>
+                <input name={`name-${c.id}`} className="input font-medium" defaultValue={c.name} required />
+              </div>
+              <div className="flex items-center gap-2 pl-7 sm:pl-0">
+                <input name={`weight-${c.id}`} type="number" min={0} max={100} className="input w-20"
+                  defaultValue={c.weight}
+                  onChange={(e) => setWeights((w) => ({ ...w, [c.id]: Number(e.target.value) || 0 }))} />
+                <span className="text-sm text-slate-500">%</span>
+                <ConfirmButton formAction={deleteCriterion} name="delete_id" value={c.id}
+                  message={`Remover o critério "${c.name}"? As respostas a este critério deixam de contar.`}
+                  className="ml-auto sm:ml-1 text-xs text-red-600 hover:text-red-800 shrink-0">
+                  Remover
+                </ConfirmButton>
+              </div>
             </div>
             <textarea name={`desc-${c.id}`} className="input" rows={2} defaultValue={c.description} placeholder="Descrição" />
           </div>
         ))}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button className="btn-primary" disabled={!ok}>Guardar critérios</button>
           <span className={`text-sm font-medium ${ok ? 'text-green-700' : 'text-red-600'}`}>
             Total dos pesos: {total}%{ok ? ' ✓' : ' — tem de ser 100%'}

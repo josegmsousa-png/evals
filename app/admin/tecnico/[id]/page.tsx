@@ -30,9 +30,9 @@ export default async function TecnicoResultado({
 
       <div className="card mt-3 overflow-hidden">
         <div className="h-2 bg-brand-600" />
-        <div className="p-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="p-4 sm:p-6 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold">{r.technician.name}</h1>
+            <h1 className="text-xl sm:text-2xl font-semibold">{r.technician.name}</h1>
             <p className="text-sm text-slate-500 mt-1">
               {period.name} · {r.evaluations.length} de {evaluators.length} engenheiros responderam
             </p>
@@ -40,7 +40,7 @@ export default async function TecnicoResultado({
               <p className="text-xs text-amber-700 mt-1">Em falta: {missing.map((m) => m.name || m.email).join(', ')}</p>
             )}
           </div>
-          <div className="text-right">
+          <div className="sm:text-right">
             <div className="text-xs uppercase tracking-wide text-slate-500">Média</div>
             <ScoreBadge score={r.score} size="lg" />
           </div>
@@ -48,8 +48,35 @@ export default async function TecnicoResultado({
       </div>
 
       {/* Uma linha por engenheiro */}
-      <section className="card mt-4 overflow-x-auto">
-        <h2 className="px-5 pt-5 font-semibold">Por engenheiro</h2>
+      <section className="card mt-4 overflow-hidden">
+        <h2 className="px-4 pt-4 sm:px-5 sm:pt-5 font-semibold">Por engenheiro</h2>
+
+        {/* Telemóvel: um cartão por engenheiro */}
+        <div className="sm:hidden mt-2 divide-y divide-slate-100">
+          {r.evaluations.map((ev) => (
+            <div key={ev.id} className="px-4 py-3">
+              <div className="flex items-center justify-between gap-3">
+                <span className="font-medium truncate">{nameOf(ev.engineer_id)}</span>
+                <ScoreBadge score={computeScore(criteria, ev.scores)} />
+              </div>
+              <div className="mt-2 space-y-1">
+                {criteria.map((c) => {
+                  const lvl = ev.scores[c.id]?.level
+                  return (
+                    <div key={c.id} className="flex items-center justify-between gap-3 text-xs">
+                      <span className="truncate text-slate-500">{c.name.split(' /')[0]}</span>
+                      {lvl != null && <span className="chip shrink-0 text-white" style={{ backgroundColor: LEVELS[lvl].color }}>{LEVELS[lvl].label}</span>}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+          {r.evaluations.length === 0 && <p className="px-4 py-4 text-sm text-slate-500">Ainda sem avaliações submetidas.</p>}
+        </div>
+
+        {/* Desktop: tabela */}
+        <div className="hidden sm:block overflow-x-auto">
         <table className="mt-3 w-full text-sm">
           <thead className="bg-slate-50 text-left text-xs text-slate-500">
             <tr>
@@ -78,6 +105,7 @@ export default async function TecnicoResultado({
             )}
           </tbody>
         </table>
+        </div>
       </section>
 
       {/* Um cartão por critério: distribuição + comentários */}
@@ -86,7 +114,7 @@ export default async function TecnicoResultado({
         const avg = r.criterionAvg[c.id]
         const comments = r.evaluations.filter((e) => e.scores[c.id]?.comment?.trim())
         return (
-          <section key={c.id} className="card mt-4 p-6">
+          <section key={c.id} className="card mt-4 p-4 sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="font-semibold"><span className="text-slate-400 mr-2">{i + 1}.</span>{c.name}</h2>

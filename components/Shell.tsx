@@ -1,29 +1,23 @@
 import Link from 'next/link'
 import type { Profile } from '@/lib/types'
+import NavLinks from './NavLinks'
 import UserMenu from './UserMenu'
 
 export default function Shell({ profile, children }: { profile: Profile; children: React.ReactNode }) {
+  const isAdmin = profile.role === 'admin'
   return (
     <div className="min-h-screen">
-      <header className="bg-white border-b border-slate-200">
-        <div className="mx-auto max-w-5xl px-4 h-14 flex items-center gap-6">
+      <header className="sticky top-0 z-30 bg-white border-b border-slate-200">
+        <div className="mx-auto max-w-5xl px-4 h-14 flex items-center gap-4">
           <Link href="/" className="font-semibold text-brand-700">Avaliações</Link>
-          <nav className="flex gap-4 text-sm text-slate-600">
-            <Link href="/avaliar" className="hover:text-slate-900">Avaliar</Link>
-            {profile.role === 'admin' && (
-              <>
-                <Link href="/admin" className="hover:text-slate-900">Resultados</Link>
-                <Link href="/admin/equipa" className="hover:text-slate-900">Equipa</Link>
-                <Link href="/admin/periodos" className="hover:text-slate-900">Períodos</Link>
-              </>
-            )}
-          </nav>
+          <NavLinks isAdmin={isAdmin} />
           <div className="ml-auto text-sm">
             <UserMenu name={profile.name} email={profile.email} />
           </div>
         </div>
+        <NavLinks isAdmin={isAdmin} mobile />
       </header>
-      <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
+      <main className="mx-auto max-w-5xl px-4 py-5 sm:py-8">{children}</main>
     </div>
   )
 }

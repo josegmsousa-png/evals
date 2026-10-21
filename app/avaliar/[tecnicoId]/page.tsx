@@ -28,8 +28,8 @@ export default async function AvaliarTecnico({ params }: { params: { tecnicoId: 
         <Link href="/avaliar" className="text-sm text-slate-500 hover:text-slate-800">← Voltar</Link>
         <div className="card mt-3 overflow-hidden">
           <div className="h-2 bg-brand-600" />
-          <div className="p-6">
-            <h1 className="text-2xl font-semibold">{tech.name}</h1>
+          <div className="p-4 sm:p-6">
+            <h1 className="text-xl sm:text-2xl font-semibold">{tech.name}</h1>
             <p className="text-sm text-slate-500 mt-1">
               {period.name} · {isOpen(period) ? `editável até ${formatDate(period.deadline)}` : 'período fechado'}
             </p>
