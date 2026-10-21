@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Profile } from '@/lib/types'
+import UserMenu from './UserMenu'
 
 export default function Shell({ profile, children }: { profile: Profile; children: React.ReactNode }) {
   return (
@@ -17,13 +18,8 @@ export default function Shell({ profile, children }: { profile: Profile; childre
               </>
             )}
           </nav>
-          <div className="ml-auto flex items-center gap-3 text-sm">
-            <Link href="/palavra-passe" className="hidden sm:inline text-slate-500 hover:text-slate-900" title="Mudar palavra-passe">
-              {profile.name || profile.email}
-            </Link>
-            <form action="/auth/signout" method="post">
-              <button className="text-slate-500 hover:text-slate-900">Sair</button>
-            </form>
+          <div className="ml-auto text-sm">
+            <UserMenu name={profile.name} email={profile.email} />
           </div>
         </div>
       </header>
