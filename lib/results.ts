@@ -5,7 +5,7 @@ import type { Criterion, Evaluation, Period, Profile, Technician } from './types
 export type TechResult = {
   technician: Technician
   evaluations: Evaluation[]       // só submetidas
-  score: number | null            // média das classificações /7
+  score: number | null            // média das classificações /4
   criterionAvg: Record<string, number | null> // média do nível (0..4) por critério
 }
 

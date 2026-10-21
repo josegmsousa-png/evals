@@ -9,9 +9,9 @@ export const LEVELS = [
   { label: 'Excelente', value: 100, color: '#3b82f6' },
 ] as const
 
-export const MAX_SCORE = 7
+export const MAX_SCORE = 4
 
-// Mesma fórmula da folha: Σ(desempenho × peso / 100) × 7 / 100
+// Escala 0–4: média ponderada dos níveis (Mau 0 … Excelente 4)
 export function computeScore(criteria: Criterion[], scores: Record<string, CriterionScore>) {
   let total = 0
   for (const c of criteria) {
@@ -35,6 +35,6 @@ export function formatScore(score: number | null) {
 }
 
 export function levelForScore(score: number) {
-  // Score /7 → nível mais próximo, para dar cor
+  // Nota /4 → nível mais próximo, para dar cor
   return Math.min(4, Math.max(0, Math.round((score / MAX_SCORE) * 4)))
 }

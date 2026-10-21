@@ -3,7 +3,7 @@
 Avaliação anual dos técnicos pelos engenheiros.
 
 - Cada engenheiro avalia todos os técnicos (6 critérios ponderados, escala Mau → Excelente, comentário por critério).
-- Nota final /7, com a mesma fórmula da folha Excel: `Σ(desempenho × peso) × 7 / 100`.
+- Nota final de 0 a 4: média ponderada dos níveis (Mau 0, Fraco 1, Médio 2, Bom 3, Excelente 4) pelos pesos dos critérios.
 - As avaliações podem ser editadas até ao prazo do período.
 - Só o administrador vê os resultados: média de todos os engenheiros, distribuição por critério, comentários e a avaliação de cada engenheiro. Exportação para Excel.
 - Os técnicos não têm acesso.

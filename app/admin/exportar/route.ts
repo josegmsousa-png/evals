@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
   const resumo = results.map((r) => ({
     'Técnico': r.technician.name,
-    'Média /7': round(r.score),
+    'Média /4': round(r.score),
     'Respostas': r.evaluations.length,
     ...Object.fromEntries(criteria.map((c) => {
       const avg = r.criterionAvg[c.id]
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
   const detalhe = results.flatMap((r) => r.evaluations.map((e) => ({
     'Técnico': r.technician.name,
     'Engenheiro': nameOf(e.engineer_id),
-    'Nota /7': round(computeScore(criteria, e.scores)),
+    'Nota /4': round(computeScore(criteria, e.scores)),
     ...Object.fromEntries(criteria.flatMap((c) => {
       const s = e.scores[c.id]
       return [
