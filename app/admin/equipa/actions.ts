@@ -33,6 +33,16 @@ export async function resetPassword(formData: FormData) {
   revalidatePath('/admin/equipa')
 }
 
+// Apaga a conta; o perfil e as avaliações dessa pessoa vão em cascata
+export async function deletePerson(formData: FormData) {
+  const me = await requireAdmin()
+  const id = String(formData.get('id'))
+  if (id === me.id) return
+  const { error } = await createServiceClient().auth.admin.deleteUser(id)
+  if (error) throw new Error(error.message)
+  revalidatePath('/', 'layout')
+}
+
 export async function updatePerson(formData: FormData) {
   await requireAdmin()
   const id = String(formData.get('id'))
@@ -57,4 +67,10 @@ export async function setTechnicianActive(formData: FormData) {
     .update({ active: formData.get('active') === 'true' })
     .eq('id', String(formData.get('id')))
   revalidatePath('/admin/equipa')
+}
+
+export async function deleteTechnician(formData: FormData) {
+  await requireAdmin()
+  await createClient().from('technicians').delete().eq('id', String(formData.get('id')))
+  revalidatePath('/', 'layout')
 }

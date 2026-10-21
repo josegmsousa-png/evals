@@ -3,15 +3,20 @@ import { requireAdmin } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import type { Profile, Technician } from '@/lib/types'
 import { tempPassword } from '@/lib/password'
-import { addPerson, addTechnician, resetPassword, setTechnicianActive, updatePerson } from './actions'
+import ConfirmButton from '@/components/ConfirmButton'
+import { addPerson, addTechnician, deletePerson, deleteTechnician, resetPassword, setTechnicianActive, updatePerson } from './actions'
 
 export default async function Equipa() {
   const me = await requireAdmin()
   const supabase = createClient()
-  const [{ data: people }, { data: techs }] = await Promise.all([
+  const [{ data: people }, { data: techs }, { data: evals }] = await Promise.all([
     supabase.from('profiles').select('*').order('name'),
     supabase.from('technicians').select('*').order('name'),
+    supabase.from('evaluations').select('engineer_id, technician_id'),
   ])
+  const evalsBy = (key: 'engineer_id' | 'technician_id', id: string) =>
+    (evals ?? []).filter((e) => e[key] === id).length
+  const andEvals = (n: number) => (n ? ` Também apaga as ${n} avaliações associadas.` : '')
 
   return (
     <Shell profile={me}>
@@ -63,6 +68,13 @@ export default async function Equipa() {
                       <input type="hidden" name="active" value={String(!p.active)} />
                       <button className="text-xs text-slate-500 hover:text-slate-900">{p.active ? 'Desactivar' : 'Reactivar'}</button>
                     </form>
+                    <form action={deletePerson}>
+                      <input type="hidden" name="id" value={p.id} />
+                      <ConfirmButton className="text-xs text-red-600 hover:text-red-800"
+                        message={`Eliminar ${p.name || p.email}?${andEvals(evalsBy('engineer_id', p.id))} Não é possível desfazer.`}>
+                        Eliminar
+                      </ConfirmButton>
+                    </form>
                   </div>
                 )}
               </li>
@@ -72,7 +84,9 @@ export default async function Equipa() {
 
         <section className="card p-6">
           <h2 className="font-semibold">Técnicos</h2>
-          <p className="text-sm text-slate-500 mt-1">Quem é avaliado. Não têm acesso à aplicação.</p>
+          <p className="text-sm text-slate-500 mt-1">
+            Quem é avaliado. Não têm acesso à aplicação. Desactivar esconde-o das avaliações mas mantém o histórico.
+          </p>
           <form action={addTechnician} className="mt-4 flex gap-2">
             <input name="name" className="input" placeholder="Nome do técnico" required />
             <button className="btn-primary shrink-0">Adicionar</button>
@@ -81,11 +95,20 @@ export default async function Equipa() {
             {((techs as Technician[]) ?? []).map((t) => (
               <li key={t.id} className={`py-3 flex items-center ${t.active ? '' : 'opacity-50'}`}>
                 <span className="font-medium">{t.name}</span>
-                <form action={setTechnicianActive} className="ml-auto">
-                  <input type="hidden" name="id" value={t.id} />
-                  <input type="hidden" name="active" value={String(!t.active)} />
-                  <button className="text-xs text-slate-500 hover:text-slate-900">{t.active ? 'Desactivar' : 'Reactivar'}</button>
-                </form>
+                <div className="ml-auto flex items-center gap-3">
+                  <form action={setTechnicianActive}>
+                    <input type="hidden" name="id" value={t.id} />
+                    <input type="hidden" name="active" value={String(!t.active)} />
+                    <button className="text-xs text-slate-500 hover:text-slate-900">{t.active ? 'Desactivar' : 'Reactivar'}</button>
+                  </form>
+                  <form action={deleteTechnician}>
+                    <input type="hidden" name="id" value={t.id} />
+                    <ConfirmButton className="text-xs text-red-600 hover:text-red-800"
+                      message={`Eliminar ${t.name}?${andEvals(evalsBy('technician_id', t.id))} Não é possível desfazer.`}>
+                      Eliminar
+                    </ConfirmButton>
+                  </form>
+                </div>
               </li>
             ))}
           </ul>

@@ -15,11 +15,14 @@ export async function loadResults(period: Period) {
     supabase.from('technicians').select('*').order('name'),
     supabase.from('criteria').select('*').eq('period_id', period.id).order('position'),
     supabase.from('evaluations').select('*').eq('period_id', period.id).eq('submitted', true),
-    supabase.from('profiles').select('*').eq('active', true).order('name'),
+    supabase.from('profiles').select('*').order('name'),
   ])
   const crit = (criteria as Criterion[]) ?? []
-  const all = (evals as Evaluation[]) ?? []
-  const evaluators = ((engineers as Profile[]) ?? []).filter((p) => p.role === 'engineer')
+  const profiles = (engineers as Profile[]) ?? []
+  // Só contam avaliações de engenheiros; as feitas por administradores (ex. testes) ficam de fora
+  const admins = new Set(profiles.filter((p) => p.role === 'admin').map((p) => p.id))
+  const all = ((evals as Evaluation[]) ?? []).filter((e) => !admins.has(e.engineer_id))
+  const evaluators = profiles.filter((p) => p.role === 'engineer' && p.active)
 
   const results: TechResult[] = ((techs as Technician[]) ?? [])
     .map((t) => {
@@ -34,5 +37,5 @@ export async function loadResults(period: Period) {
     // técnicos inactivos só aparecem se tiverem avaliações neste período
     .filter((r) => r.technician.active || r.evaluations.length > 0)
 
-  return { criteria: crit, results, evaluators, profiles: (engineers as Profile[]) ?? [] }
+  return { criteria: crit, results, evaluators, profiles }
 }
