@@ -12,7 +12,7 @@ export type TechResult = {
 export async function loadResults(period: Period) {
   const supabase = createClient()
   const [{ data: techs }, { data: criteria }, { data: evals }, { data: engineers }] = await Promise.all([
-    supabase.from('technicians').select('*').order('name'),
+    supabase.from('technicians').select('*').eq('team_id', period.team_id).order('name'),
     supabase.from('criteria').select('*').eq('period_id', period.id).order('position'),
     supabase.from('evaluations').select('*').eq('period_id', period.id).eq('submitted', true),
     supabase.from('profiles').select('*').order('name'),
@@ -22,7 +22,7 @@ export async function loadResults(period: Period) {
   // Só contam avaliações de engenheiros; as feitas por administradores (ex. testes) ficam de fora
   const admins = new Set(profiles.filter((p) => p.role === 'admin').map((p) => p.id))
   const all = ((evals as Evaluation[]) ?? []).filter((e) => !admins.has(e.engineer_id))
-  const evaluators = profiles.filter((p) => p.role === 'engineer' && p.active)
+  const evaluators = profiles.filter((p) => p.role === 'engineer' && p.active && p.team_id === period.team_id)
 
   const results: TechResult[] = ((techs as Technician[]) ?? [])
     .map((t) => {

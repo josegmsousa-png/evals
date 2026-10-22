@@ -4,17 +4,20 @@ import Hero from '@/components/Hero'
 import ScoreBadge from '@/components/ScoreBadge'
 import PeriodPicker from '@/components/PeriodPicker'
 import { requireAdmin } from '@/lib/auth'
+import { teamLabel } from '@/lib/config'
+import { getCurrentTeam } from '@/lib/team'
 import { getPeriod, isOpen, formatDate } from '@/lib/period'
 import { loadResults } from '@/lib/results'
 import { LEVELS, MAX_SCORE, average, formatScore, levelForScore } from '@/lib/score'
 
 export default async function Admin({ searchParams }: { searchParams: { periodo?: string } }) {
   const profile = await requireAdmin()
-  const { period, periods } = await getPeriod(searchParams.periodo)
+  const { team } = await getCurrentTeam(profile)
+  const { period, periods } = await getPeriod(team?.id, searchParams.periodo)
   if (!period) {
     return (
       <Shell profile={profile}>
-        <p className="text-slate-500">Ainda não há períodos. <Link className="text-brand-600 underline" href="/admin/periodos">Criar o primeiro</Link>.</p>
+        <p className="text-slate-500">Ainda não há períodos para {teamLabel(team)}. <Link className="text-brand-600 underline" href="/admin/periodos">Criar o primeiro</Link>.</p>
       </Shell>
     )
   }
@@ -26,7 +29,7 @@ export default async function Admin({ searchParams }: { searchParams: { periodo?
 
   return (
     <Shell profile={profile}>
-      <Hero title={period.name}
+      <Hero title={period.name} department={teamLabel(team)}
         subtitle={isOpen(period) ? `Aberto até ${formatDate(period.deadline)}` : `Fechado em ${formatDate(period.deadline)}`}>
         <div className="flex flex-wrap gap-2">
           <PeriodPicker periods={periods} current={period.id} />

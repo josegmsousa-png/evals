@@ -1,11 +1,13 @@
 # Avaliações
 
-Avaliação anual dos técnicos pelos engenheiros.
+Avaliação anual dos técnicos pelos engenheiros · MV Dispatch (Tejo, Guadiana, Douro, Mondego).
 
-- Cada engenheiro avalia todos os técnicos (6 critérios ponderados, escala Mau → Excelente, comentário por critério).
+- Cada equipa tem os seus engenheiros, técnicos, períodos e critérios. As equipas não veem os dados umas das outras.
+- Cada engenheiro avalia todos os técnicos da sua equipa (6 critérios ponderados, escala Mau → Excelente, comentário por critério).
 - Nota final de 0 a 4: média ponderada dos níveis (Mau 0, Fraco 1, Médio 2, Bom 3, Excelente 4) pelos pesos dos critérios.
 - As avaliações podem ser editadas até ao prazo do período.
-- Só o administrador vê os resultados: média de todos os engenheiros, distribuição por critério, comentários e a avaliação de cada engenheiro. Exportação para Excel.
+- Administradores de equipa veem os resultados da sua equipa; o administrador global (sem equipa) vê todas e escolhe a equipa no topo.
+- Só os administradores veem os resultados: média de todos os engenheiros, distribuição por critério, comentários e a avaliação de cada engenheiro. Exportação para Excel.
 - Os técnicos não têm acesso.
 
 ## Stack
@@ -17,7 +19,7 @@ Next.js 14 · Supabase (base de dados + login com email e palavra-passe) · Verc
 ### 1. Supabase (projecto novo)
 
 1. Criar um projecto novo em [supabase.com](https://supabase.com).
-2. **SQL Editor** → colar e correr `supabase/migrations/001_init.sql` e depois `supabase/migrations/002_password_login.sql`.
+2. **SQL Editor** → colar e correr `supabase/migrations/001_init.sql` e depois `002_password_login.sql` e `003_teams.sql` (pela ordem).
 3. **SQL Editor** → colar e correr `supabase/seed.sql` (período 2026, critérios da folha actual e lista de técnicos).
 4. **Authentication → Users → Add user** → criar o teu utilizador com o teu email e uma palavra-passe (marcar *Auto Confirm User*).
 5. **SQL Editor** → tornar-te administrador:

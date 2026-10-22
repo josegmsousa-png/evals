@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { APP_NAME, DEPARTMENT } from '@/lib/config'
+import { APP_NAME, AREA } from '@/lib/config'
 
 export default function Login() {
   const router = useRouter()
@@ -37,7 +37,7 @@ export default function Login() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/icon.svg" alt="" className="h-20 w-20 drop-shadow-[0_10px_20px_rgba(47,67,196,0.35)]" />
           <h1 className="mt-4 text-2xl font-bold tracking-tight text-[#1e2a78]">{APP_NAME}</h1>
-          <div className="text-sm font-semibold text-brand-600">{DEPARTMENT}</div>
+          <div className="text-sm font-semibold text-brand-600">{AREA}</div>
           <p className="mt-3 text-sm text-slate-500">Entra com o teu email e palavra-passe.</p>
         </div>
         <form onSubmit={submit} className="mt-6 space-y-3">

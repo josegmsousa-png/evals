@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { APP_NAME, DEPARTMENT } from '@/lib/config'
+import { APP_NAME, AREA } from '@/lib/config'
 import './globals.css'
 
 // URL absoluto para a imagem de pré-visualização ao partilhar o link
@@ -9,12 +9,12 @@ const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: { default: `${APP_NAME} · ${DEPARTMENT}`, template: `%s · ${APP_NAME}` },
-  description: `Avaliação anual dos técnicos · ${DEPARTMENT}`,
+  title: { default: `${APP_NAME} · ${AREA}`, template: `%s · ${APP_NAME}` },
+  description: `Avaliação anual dos técnicos · ${AREA}`,
   applicationName: APP_NAME,
   appleWebApp: { capable: true, title: APP_NAME, statusBarStyle: 'default' },
   openGraph: {
-    title: `${APP_NAME} · ${DEPARTMENT}`,
+    title: `${APP_NAME} · ${AREA}`,
     description: 'Avaliação anual dos técnicos',
     type: 'website',
     locale: 'pt_PT',

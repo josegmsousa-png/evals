@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import * as XLSX from 'xlsx'
 import { getProfile } from '@/lib/auth'
+import { teamLabel } from '@/lib/config'
+import { getCurrentTeam } from '@/lib/team'
 import { getPeriod } from '@/lib/period'
 import { loadResults } from '@/lib/results'
 import { LEVELS, computeScore } from '@/lib/score'
@@ -8,7 +10,8 @@ import { LEVELS, computeScore } from '@/lib/score'
 export async function GET(request: NextRequest) {
   const profile = await getProfile()
   if (profile?.role !== 'admin') return new NextResponse('Forbidden', { status: 403 })
-  const { period } = await getPeriod(request.nextUrl.searchParams.get('periodo') ?? undefined)
+  const { team } = await getCurrentTeam(profile)
+  const { period } = await getPeriod(team?.id, request.nextUrl.searchParams.get('periodo') ?? undefined)
   if (!period) return new NextResponse('Not found', { status: 404 })
 
   const { criteria, results, profiles } = await loadResults(period)
@@ -46,7 +49,7 @@ export async function GET(request: NextRequest) {
   return new NextResponse(buf, {
     headers: {
       'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'Content-Disposition': `attachment; filename="${period.name.replace(/[^\w\- ]/g, '')}.xlsx"`,
+      'Content-Disposition': `attachment; filename="${`${period.name} - ${teamLabel(team)}`.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w\- ]/g, '')}.xlsx"`,
     },
   })
 }

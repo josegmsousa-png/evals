@@ -15,9 +15,10 @@ function isActive(path: string, href: string) {
 }
 
 // Desktop: links no topo. Telemóvel: barra de separadores por baixo do cabeçalho
-export default function NavLinks({ isAdmin, mobile = false }: { isAdmin: boolean; mobile?: boolean }) {
+export default function NavLinks({ isAdmin, isGlobal = false, mobile = false }: { isAdmin: boolean; isGlobal?: boolean; mobile?: boolean }) {
   const path = usePathname()
-  const links = LINKS.filter((l) => isAdmin || !l.admin)
+  // O admin global não avalia (não pertence a nenhuma equipa)
+  const links = LINKS.filter((l) => (isAdmin || !l.admin) && !(isGlobal && l.href === '/avaliar'))
   if (mobile && links.length < 2) return null
 
   return (

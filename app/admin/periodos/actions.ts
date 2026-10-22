@@ -1,6 +1,6 @@
 'use server'
 import { revalidatePath } from 'next/cache'
-import { requireAdmin } from '@/lib/auth'
+import { isGlobalAdmin, requireAdmin } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import type { Criterion } from '@/lib/types'
 
@@ -10,26 +10,34 @@ function endOfDay(date: string) {
 }
 
 export async function createPeriod(formData: FormData) {
-  await requireAdmin()
+  const me = await requireAdmin()
   const supabase = createClient()
   const name = String(formData.get('name') ?? '').trim()
   const deadline = String(formData.get('deadline') ?? '')
   if (!name || !deadline) return
 
-  // Copia os critérios do período mais recente
-  const { data: last } = await supabase.from('periods').select('id').order('deadline', { ascending: false }).limit(1).maybeSingle()
-  const { data: created, error } = await supabase.from('periods')
-    .insert({ name, deadline: endOfDay(deadline) }).select().single()
-  if (error) throw new Error(error.message)
+  // O admin global pode criar o mesmo período em todas as equipas de uma vez
+  const teamIds = formData.get('all_teams') === 'on' && isGlobalAdmin(me)
+    ? ((await supabase.from('teams').select('id')).data ?? []).map((t) => t.id as string)
+    : [String(formData.get('team_id'))]
 
-  if (last) {
-    const { data: crit } = await supabase.from('criteria').select('*').eq('period_id', last.id)
-    if (crit?.length) {
-      await supabase.from('criteria').insert(
-        (crit as Criterion[]).map(({ position, name, description, weight }) => ({
-          period_id: created.id, position, name, description, weight,
-        })),
-      )
+  for (const teamId of teamIds) {
+    // Copia os critérios do período mais recente da mesma equipa
+    const { data: last } = await supabase.from('periods').select('id')
+      .eq('team_id', teamId).order('deadline', { ascending: false }).limit(1).maybeSingle()
+    const { data: created, error } = await supabase.from('periods')
+      .insert({ name, deadline: endOfDay(deadline), team_id: teamId }).select().single()
+    if (error) throw new Error(error.message)
+
+    if (last) {
+      const { data: crit } = await supabase.from('criteria').select('*').eq('period_id', last.id)
+      if (crit?.length) {
+        await supabase.from('criteria').insert(
+          (crit as Criterion[]).map(({ position, name, description, weight }) => ({
+            period_id: created.id, position, name, description, weight,
+          })),
+        )
+      }
     }
   }
   revalidatePath('/', 'layout')

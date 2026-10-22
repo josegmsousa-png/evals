@@ -4,6 +4,8 @@ import Shell from '@/components/Shell'
 import ScoreBadge from '@/components/ScoreBadge'
 import LevelBars from '@/components/LevelBars'
 import { requireAdmin } from '@/lib/auth'
+import { teamLabel } from '@/lib/config'
+import { getCurrentTeam } from '@/lib/team'
 import { getPeriod } from '@/lib/period'
 import { loadResults } from '@/lib/results'
 import { LEVELS, computeScore } from '@/lib/score'
@@ -12,7 +14,8 @@ export default async function TecnicoResultado({
   params, searchParams,
 }: { params: { id: string }; searchParams: { periodo?: string } }) {
   const profile = await requireAdmin()
-  const { period } = await getPeriod(searchParams.periodo)
+  const { team } = await getCurrentTeam(profile)
+  const { period } = await getPeriod(team?.id, searchParams.periodo)
   if (!period) notFound()
   const { criteria, results, evaluators, profiles } = await loadResults(period)
   const r = results.find((x) => x.technician.id === params.id)
@@ -34,7 +37,7 @@ export default async function TecnicoResultado({
           <div>
             <h1 className="text-xl sm:text-2xl font-semibold">{r.technician.name}</h1>
             <p className="text-sm text-slate-500 mt-1">
-              {period.name} · {r.evaluations.length} de {evaluators.length} engenheiros responderam
+              {period.name} · {teamLabel(team)} · {r.evaluations.length} de {evaluators.length} engenheiros responderam
             </p>
             {missing.length > 0 && (
               <p className="text-xs text-amber-700 mt-1">Em falta: {missing.map((m) => m.name || m.email).join(', ')}</p>

@@ -1,10 +1,10 @@
 import type { MetadataRoute } from 'next'
-import { APP_NAME, DEPARTMENT } from '@/lib/config'
+import { APP_NAME, AREA } from '@/lib/config'
 
 // Permite "Adicionar ao ecrã principal" no Android com ícone próprio
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: `${APP_NAME} · ${DEPARTMENT}`,
+    name: `${APP_NAME} · ${AREA}`,
     short_name: APP_NAME,
     description: 'Avaliação anual dos técnicos',
     start_url: '/',

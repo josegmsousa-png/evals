@@ -23,3 +23,12 @@ export async function requireAdmin(): Promise<Profile> {
   if (profile.role !== 'admin') redirect('/avaliar')
   return profile
 }
+
+export function isGlobalAdmin(profile: Profile) {
+  return profile.role === 'admin' && profile.team_id == null
+}
+
+// Admin global gere todas as equipas; admin de equipa só a sua
+export function canAdminTeam(profile: Profile, teamId: string | null) {
+  return profile.role === 'admin' && (profile.team_id == null || profile.team_id === teamId)
+}

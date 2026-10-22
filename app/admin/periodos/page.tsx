@@ -1,6 +1,8 @@
 import Shell from '@/components/Shell'
 import ConfirmButton from '@/components/ConfirmButton'
-import { requireAdmin } from '@/lib/auth'
+import { isGlobalAdmin, requireAdmin } from '@/lib/auth'
+import { teamLabel } from '@/lib/config'
+import { getCurrentTeam } from '@/lib/team'
 import { getPeriods, isOpen, formatDate } from '@/lib/period'
 import { createClient } from '@/lib/supabase/server'
 import type { Criterion } from '@/lib/types'
@@ -9,18 +11,21 @@ import { createPeriod, deletePeriod, updatePeriod } from './actions'
 
 export default async function Periodos() {
   const me = await requireAdmin()
-  const periods = await getPeriods()
+  const { team } = await getCurrentTeam(me)
+  if (!team) return <Shell profile={me}><p className="text-slate-500">Sem equipa.</p></Shell>
+  const periods = await getPeriods(team.id)
+  const ids = periods.map((p) => p.id)
   const supabase = createClient()
   const [{ data: criteria }, { data: evals }] = await Promise.all([
-    supabase.from('criteria').select('*').order('position'),
-    supabase.from('evaluations').select('period_id'),
+    supabase.from('criteria').select('*').in('period_id', ids).order('position'),
+    supabase.from('evaluations').select('period_id').in('period_id', ids),
   ])
   const evalCount = (id: string) => (evals ?? []).filter((e) => e.period_id === id).length
   const year = new Date().getFullYear()
 
   return (
     <Shell profile={me}>
-      <h1 className="text-xl sm:text-2xl font-semibold">Períodos de avaliação</h1>
+      <h1 className="text-xl sm:text-2xl font-semibold">Períodos · {teamLabel(team)}</h1>
 
       <form action={createPeriod} className="card mt-6 p-4 sm:p-6 flex flex-wrap items-end gap-3">
         <div className="flex-1 min-w-[200px]">
@@ -31,8 +36,15 @@ export default async function Periodos() {
           <label className="label">Prazo</label>
           <input name="deadline" type="date" className="input" defaultValue={`${year}-12-31`} required />
         </div>
+        <input type="hidden" name="team_id" value={team.id} />
         <button className="btn-primary">Criar período</button>
-        <p className="w-full text-xs text-slate-500">Os critérios e pesos são copiados do período mais recente.</p>
+        {isGlobalAdmin(me) && (
+          <label className="w-full flex items-center gap-2 text-sm text-slate-700">
+            <input type="checkbox" name="all_teams" className="h-4 w-4 accent-brand-600" />
+            Criar em todas as equipas (Tejo, Guadiana, Douro e Mondego)
+          </label>
+        )}
+        <p className="w-full text-xs text-slate-500">Os critérios e pesos são copiados do período mais recente de cada equipa.</p>
       </form>
 
       {periods.map((p) => {

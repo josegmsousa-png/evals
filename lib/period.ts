@@ -1,14 +1,16 @@
 import { createClient } from './supabase/server'
 import type { Period } from './types'
 
-export async function getPeriods(): Promise<Period[]> {
-  const { data } = await createClient().from('periods').select('*').order('deadline', { ascending: false })
+export async function getPeriods(teamId: string): Promise<Period[]> {
+  const { data } = await createClient().from('periods').select('*')
+    .eq('team_id', teamId).order('deadline', { ascending: false })
   return data ?? []
 }
 
-// Período mais recente, ou o escolhido por ?periodo=
-export async function getPeriod(id?: string): Promise<{ period: Period | null; periods: Period[] }> {
-  const periods = await getPeriods()
+// Período mais recente da equipa, ou o escolhido por ?periodo=
+export async function getPeriod(teamId: string | undefined, id?: string): Promise<{ period: Period | null; periods: Period[] }> {
+  if (!teamId) return { period: null, periods: [] }
+  const periods = await getPeriods(teamId)
   return { period: periods.find((p) => p.id === id) ?? periods[0] ?? null, periods }
 }
 

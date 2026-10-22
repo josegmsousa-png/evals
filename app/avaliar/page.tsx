@@ -2,7 +2,10 @@ import Link from 'next/link'
 import Shell from '@/components/Shell'
 import Hero from '@/components/Hero'
 import ScoreBadge from '@/components/ScoreBadge'
-import { requireUser } from '@/lib/auth'
+import { redirect } from 'next/navigation'
+import { isGlobalAdmin, requireUser } from '@/lib/auth'
+import { teamLabel } from '@/lib/config'
+import { getCurrentTeam } from '@/lib/team'
 import { getPeriod, isOpen, formatDate } from '@/lib/period'
 import { computeScore } from '@/lib/score'
 import { createClient } from '@/lib/supabase/server'
@@ -10,7 +13,9 @@ import type { Criterion, Evaluation, Technician } from '@/lib/types'
 
 export default async function Avaliar() {
   const profile = await requireUser()
-  const { period } = await getPeriod()
+  if (isGlobalAdmin(profile)) redirect('/admin')
+  const { team } = await getCurrentTeam(profile)
+  const { period } = await getPeriod(team?.id)
   const supabase = createClient()
 
   if (!period) {
@@ -18,7 +23,7 @@ export default async function Avaliar() {
   }
 
   const [{ data: techs }, { data: criteria }, { data: evals }] = await Promise.all([
-    supabase.from('technicians').select('*').eq('active', true).order('name'),
+    supabase.from('technicians').select('*').eq('team_id', period.team_id).eq('active', true).order('name'),
     supabase.from('criteria').select('*').eq('period_id', period.id).order('position'),
     supabase.from('evaluations').select('*').eq('period_id', period.id).eq('engineer_id', profile.id),
   ])
@@ -29,7 +34,7 @@ export default async function Avaliar() {
 
   return (
     <Shell profile={profile}>
-      <Hero title={period.name}
+      <Hero title={period.name} department={teamLabel(team)}
         subtitle={open ? `Podes editar até ${formatDate(period.deadline)}` : `Fechado desde ${formatDate(period.deadline)}`}>
         <div className="sm:text-right">
           <div className="text-sm text-slate-600">{done} de {list.length} submetidas</div>

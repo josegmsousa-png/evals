@@ -5,11 +5,14 @@ export type Profile = {
   role: 'admin' | 'engineer'
   active: boolean
   must_change_password: boolean
+  team_id: string | null // null = administrador global
 }
 
-export type Technician = { id: string; name: string; active: boolean }
+export type Team = { id: string; name: string; position: number }
 
-export type Period = { id: string; name: string; deadline: string }
+export type Technician = { id: string; name: string; active: boolean; team_id: string }
+
+export type Period = { id: string; name: string; deadline: string; team_id: string }
 
 export type Criterion = {
   id: string
