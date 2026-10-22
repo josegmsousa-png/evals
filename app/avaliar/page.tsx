@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Shell from '@/components/Shell'
+import { DEPARTMENT } from '@/lib/config'
 import ScoreBadge from '@/components/ScoreBadge'
 import { requireUser } from '@/lib/auth'
 import { getPeriod, isOpen, formatDate } from '@/lib/period'
@@ -30,7 +31,7 @@ export default async function Avaliar() {
     <Shell profile={profile}>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-semibold">{period.name}</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold">{period.name} – {DEPARTMENT}</h1>
           <p className="text-sm text-slate-500 mt-1">
             {open ? `Podes editar até ${formatDate(period.deadline)}` : `Fechado desde ${formatDate(period.deadline)}`}
           </p>

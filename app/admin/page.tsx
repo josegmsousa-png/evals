@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Shell from '@/components/Shell'
+import { DEPARTMENT } from '@/lib/config'
 import ScoreBadge from '@/components/ScoreBadge'
 import PeriodPicker from '@/components/PeriodPicker'
 import { requireAdmin } from '@/lib/auth'
@@ -27,7 +28,7 @@ export default async function Admin({ searchParams }: { searchParams: { periodo?
     <Shell profile={profile}>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-semibold">{period.name}</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold">{period.name} – {DEPARTMENT}</h1>
           <p className="text-sm text-slate-500 mt-1">
             {isOpen(period) ? `Aberto até ${formatDate(period.deadline)}` : `Fechado em ${formatDate(period.deadline)}`}
           </p>
