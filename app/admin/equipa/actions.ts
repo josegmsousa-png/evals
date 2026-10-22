@@ -1,7 +1,8 @@
 'use server'
 import { revalidatePath } from 'next/cache'
 import { canAdminTeam, isGlobalAdmin, requireAdmin } from '@/lib/auth'
-import { MIN_PASSWORD } from '@/lib/password'
+import { parseContacts } from '@/lib/contacts'
+import { MIN_PASSWORD, tempPassword } from '@/lib/password'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import type { Profile } from '@/lib/types'
 
@@ -72,4 +73,29 @@ export async function deleteTechnician(formData: FormData) {
   await requireAdmin()
   await createClient().from('technicians').delete().eq('id', String(formData.get('id')))
   revalidatePath('/', 'layout')
+}
+
+export type BulkResult = { name: string; email: string; password?: string; error?: string }
+
+// Cria várias contas de uma vez a partir de uma lista colada; devolve as palavras-passe temporárias
+export async function bulkAddPeople(teamId: string, text: string, role: 'engineer' | 'admin'): Promise<BulkResult[]> {
+  const me = await requireAdmin()
+  if (!canAdminTeam(me, teamId)) throw new Error('Sem permissão.')
+  const service = createServiceClient()
+  const results: BulkResult[] = []
+  for (const { name, email } of parseContacts(text)) {
+    const password = tempPassword()
+    const { data, error } = await service.auth.admin.createUser({
+      email, password, email_confirm: true,
+      user_metadata: { name, role: role === 'admin' ? 'admin' : 'engineer', team_id: teamId },
+    })
+    if (error) {
+      results.push({ name, email, error: error.message.includes('already') ? 'Já existe' : error.message })
+      continue
+    }
+    await service.from('profiles').update({ must_change_password: true }).eq('id', data.user.id)
+    results.push({ name, email, password })
+  }
+  revalidatePath('/admin/equipa')
+  return results
 }

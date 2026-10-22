@@ -6,6 +6,7 @@ import { tempPassword } from '@/lib/password'
 import { getCurrentTeam } from '@/lib/team'
 import { createClient } from '@/lib/supabase/server'
 import type { Profile, Technician } from '@/lib/types'
+import BulkAdd from './BulkAdd'
 import { addPerson, addTechnician, deletePerson, deleteTechnician, resetPassword } from './actions'
 
 export default async function Equipa() {
@@ -86,6 +87,10 @@ export default async function Equipa() {
               <button className="btn-primary shrink-0">Adicionar</button>
             </div>
           </form>
+          <details className="mt-3 rounded-lg border border-dashed border-slate-300 px-3 py-2">
+            <summary className="cursor-pointer text-sm font-medium text-brand-700">Adicionar vários (colar do Outlook)</summary>
+            <BulkAdd teamId={team.id} teamName={team.name} />
+          </details>
           <ul className="mt-5 divide-y divide-slate-100">
             {((people as Profile[]) ?? []).map(personRow)}
             {!people?.length && <li className="py-3 text-sm text-slate-500">Ainda ninguém nesta equipa.</li>}
