@@ -14,7 +14,7 @@ export default function TeamSwitcher({ teams, current }: { teams: Team[]; curren
     startTransition(async () => {
       await selectTeam(id)
       // Páginas de um técnico ou período concreto não existem na outra equipa
-      router.push(path.startsWith('/admin/tecnico') ? '/admin' : path)
+      router.push(path.startsWith('/admin/tecnico') ? '/admin' : path.startsWith('/avaliar/') ? '/avaliar' : path)
       router.refresh()
     })
   }

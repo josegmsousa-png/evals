@@ -2,8 +2,7 @@ import Link from 'next/link'
 import Shell from '@/components/Shell'
 import Hero from '@/components/Hero'
 import ScoreBadge from '@/components/ScoreBadge'
-import { redirect } from 'next/navigation'
-import { isGlobalAdmin, requireUser } from '@/lib/auth'
+import { requireUser } from '@/lib/auth'
 import { teamLabel } from '@/lib/config'
 import { getCurrentTeam } from '@/lib/team'
 import { getPeriod, isOpen, formatDate } from '@/lib/period'
@@ -13,7 +12,6 @@ import type { Criterion, Evaluation, Technician } from '@/lib/types'
 
 export default async function Avaliar() {
   const profile = await requireUser()
-  if (isGlobalAdmin(profile)) redirect('/admin')
   const { team } = await getCurrentTeam(profile)
   const { period } = await getPeriod(team?.id)
   const supabase = createClient()
@@ -43,6 +41,12 @@ export default async function Avaliar() {
           </div>
         </div>
       </Hero>
+
+      {profile.role === 'admin' && (
+        <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-800">
+          Modo de teste: como administrador, as tuas avaliações ficam guardadas mas não contam nos resultados.
+        </p>
+      )}
 
       <div className="mt-6 card divide-y divide-slate-100">
         {list.map((t) => {

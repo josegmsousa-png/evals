@@ -23,12 +23,12 @@ export default async function Shell({ profile, children }: { profile: Profile; c
           {global
             ? <TeamSwitcher teams={teams} current={team?.id} />
             : team && <span className="chip bg-brand-50 text-brand-700">{team.name}</span>}
-          <NavLinks isAdmin={isAdmin} isGlobal={global} />
+          <NavLinks isAdmin={isAdmin} />
           <div className="ml-auto text-sm">
             <UserMenu name={profile.name} email={profile.email} />
           </div>
         </div>
-        <NavLinks isAdmin={isAdmin} isGlobal={global} mobile />
+        <NavLinks isAdmin={isAdmin} mobile />
       </header>
       <main className="mx-auto max-w-5xl px-4 py-5 sm:py-8">{children}</main>
     </div>

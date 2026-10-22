@@ -2,8 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Shell from '@/components/Shell'
 import EvalForm from './EvalForm'
-import { redirect } from 'next/navigation'
-import { isGlobalAdmin, requireUser } from '@/lib/auth'
+import { requireUser } from '@/lib/auth'
 import { teamLabel } from '@/lib/config'
 import { getCurrentTeam } from '@/lib/team'
 import { getPeriod, isOpen, formatDate } from '@/lib/period'
@@ -12,7 +11,6 @@ import type { Criterion, Evaluation } from '@/lib/types'
 
 export default async function AvaliarTecnico({ params }: { params: { tecnicoId: string } }) {
   const profile = await requireUser()
-  if (isGlobalAdmin(profile)) redirect('/admin')
   const { team } = await getCurrentTeam(profile)
   const { period } = await getPeriod(team?.id)
   if (!period) notFound()
