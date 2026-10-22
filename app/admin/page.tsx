@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Shell from '@/components/Shell'
-import { DEPARTMENT } from '@/lib/config'
+import Hero from '@/components/Hero'
 import ScoreBadge from '@/components/ScoreBadge'
 import PeriodPicker from '@/components/PeriodPicker'
 import { requireAdmin } from '@/lib/auth'
@@ -26,18 +26,13 @@ export default async function Admin({ searchParams }: { searchParams: { periodo?
 
   return (
     <Shell profile={profile}>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-semibold">{period.name} – {DEPARTMENT}</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            {isOpen(period) ? `Aberto até ${formatDate(period.deadline)}` : `Fechado em ${formatDate(period.deadline)}`}
-          </p>
-        </div>
+      <Hero title={period.name}
+        subtitle={isOpen(period) ? `Aberto até ${formatDate(period.deadline)}` : `Fechado em ${formatDate(period.deadline)}`}>
         <div className="flex flex-wrap gap-2">
           <PeriodPicker periods={periods} current={period.id} />
           <a className="btn-ghost" href={`/admin/exportar?periodo=${period.id}`}>Exportar Excel</a>
         </div>
-      </div>
+      </Hero>
 
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <Stat label="Técnicos" value={results.length} />

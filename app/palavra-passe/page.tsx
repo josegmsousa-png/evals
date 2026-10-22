@@ -4,7 +4,7 @@ import PasswordForm from './PasswordForm'
 export default async function PalavraPasse() {
   const profile = await requireUser({ allowTempPassword: true })
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-brand-50 to-slate-100">
       <div className="card w-full max-w-sm p-8">
         <h1 className="text-xl font-semibold">
           {profile.must_change_password ? 'Define a tua palavra-passe' : 'Mudar palavra-passe'}

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Shell from '@/components/Shell'
-import { DEPARTMENT } from '@/lib/config'
+import Hero from '@/components/Hero'
 import ScoreBadge from '@/components/ScoreBadge'
 import { requireUser } from '@/lib/auth'
 import { getPeriod, isOpen, formatDate } from '@/lib/period'
@@ -29,20 +29,15 @@ export default async function Avaliar() {
 
   return (
     <Shell profile={profile}>
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-semibold">{period.name} – {DEPARTMENT}</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            {open ? `Podes editar até ${formatDate(period.deadline)}` : `Fechado desde ${formatDate(period.deadline)}`}
-          </p>
-        </div>
-        <div className="w-full sm:w-auto sm:text-right">
-          <div className="text-sm text-slate-500">{done} de {list.length} submetidas</div>
-          <div className="mt-1 h-2 w-full sm:w-48 rounded-full bg-slate-200 overflow-hidden">
+      <Hero title={period.name}
+        subtitle={open ? `Podes editar até ${formatDate(period.deadline)}` : `Fechado desde ${formatDate(period.deadline)}`}>
+        <div className="sm:text-right">
+          <div className="text-sm text-slate-600">{done} de {list.length} submetidas</div>
+          <div className="mt-1.5 h-2 w-full sm:w-48 rounded-full bg-white/70 overflow-hidden">
             <div className="h-full bg-brand-500" style={{ width: `${list.length ? (done / list.length) * 100 : 0}%` }} />
           </div>
         </div>
-      </div>
+      </Hero>
 
       <div className="mt-6 card divide-y divide-slate-100">
         {list.map((t) => {
