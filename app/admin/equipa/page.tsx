@@ -1,5 +1,4 @@
 import Shell from '@/components/Shell'
-import ConfirmButton from '@/components/ConfirmButton'
 import { isGlobalAdmin, requireAdmin } from '@/lib/auth'
 import { teamLabel } from '@/lib/config'
 import { tempPassword } from '@/lib/password'
@@ -7,7 +6,9 @@ import { getCurrentTeam } from '@/lib/team'
 import { createClient } from '@/lib/supabase/server'
 import type { Profile, Technician } from '@/lib/types'
 import BulkAdd from './BulkAdd'
-import { addPerson, addTechnician, deletePerson, deleteTechnician, resetPassword } from './actions'
+import PersonRow from './PersonRow'
+import TechnicianRow from './TechnicianRow'
+import { addPerson, addTechnician } from './actions'
 
 export default async function Equipa() {
   const me = await requireAdmin()
@@ -24,40 +25,10 @@ export default async function Equipa() {
   ])
   const evalsBy = (key: 'engineer_id' | 'technician_id', id: string) =>
     (evals ?? []).filter((e) => e[key] === id).length
-  const andEvals = (n: number) => (n ? ` Também apaga as ${n} avaliações associadas.` : '')
 
   const personRow = (p: Profile) => (
-    <li key={p.id} className="py-3 flex flex-wrap items-center gap-x-3 gap-y-2">
-      <div className="min-w-0 flex-1 sm:flex-none">
-        <div className="font-medium truncate">{p.name || p.email}</div>
-        <div className="text-xs text-slate-500 truncate">{p.email}</div>
-      </div>
-      {p.role === 'admin' && (
-        <span className="chip bg-brand-100 text-brand-700">{p.team_id ? 'admin' : 'admin global'}</span>
-      )}
-      {p.must_change_password && <span className="chip bg-amber-100 text-amber-700">1.ª entrada</span>}
-      {p.id !== me.id && (
-        <div className="w-full sm:w-auto sm:ml-auto flex items-center justify-end gap-4 sm:gap-3 shrink-0">
-          <details className="relative">
-            <summary className="cursor-pointer list-none text-xs text-slate-500 hover:text-slate-900">Repor palavra-passe</summary>
-            <form action={resetPassword} className="absolute right-0 z-10 mt-2 w-64 card p-3 space-y-2">
-              <input type="hidden" name="id" value={p.id} />
-              <label className="label">Nova palavra-passe temporária</label>
-              <input name="password" className="input font-mono" defaultValue={tempPassword()} minLength={8} required />
-              <button className="btn-primary w-full">Repor</button>
-              <p className="text-xs text-slate-500">Terá de a mudar na próxima entrada.</p>
-            </form>
-          </details>
-          <form action={deletePerson}>
-            <input type="hidden" name="id" value={p.id} />
-            <ConfirmButton className="text-xs text-red-600 hover:text-red-800"
-              message={`Eliminar ${p.name || p.email}?${andEvals(evalsBy('engineer_id', p.id))} Não é possível desfazer.`}>
-              Eliminar
-            </ConfirmButton>
-          </form>
-        </div>
-      )}
-    </li>
+    <PersonRow key={p.id} person={p} isMe={p.id === me.id}
+      evalCount={evalsBy('engineer_id', p.id)} suggestedPassword={tempPassword()} />
   )
 
   return (
@@ -113,16 +84,7 @@ export default async function Equipa() {
           </form>
           <ul className="mt-5 divide-y divide-slate-100">
             {((techs as Technician[]) ?? []).map((t) => (
-              <li key={t.id} className="py-3 flex items-center gap-3">
-                <span className="min-w-0 truncate font-medium">{t.name}</span>
-                <form action={deleteTechnician} className="ml-auto shrink-0">
-                  <input type="hidden" name="id" value={t.id} />
-                  <ConfirmButton className="text-xs text-red-600 hover:text-red-800"
-                    message={`Eliminar ${t.name}?${andEvals(evalsBy('technician_id', t.id))} Não é possível desfazer.`}>
-                    Eliminar
-                  </ConfirmButton>
-                </form>
-              </li>
+              <TechnicianRow key={t.id} technician={t} evalCount={evalsBy('technician_id', t.id)} />
             ))}
           </ul>
         </section>

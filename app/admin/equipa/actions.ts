@@ -99,3 +99,34 @@ export async function bulkAddPeople(teamId: string, text: string, role: 'enginee
   revalidatePath('/admin/equipa')
   return results
 }
+
+export async function updatePerson(formData: FormData) {
+  const me = await requireAdmin()
+  const id = String(formData.get('id'))
+  await assertCanManage(me, id)
+  const service = createServiceClient()
+  const { data: current } = await service.from('profiles').select('*').eq('id', id).single()
+  if (!current) return
+
+  const name = String(formData.get('name') ?? '').trim()
+  const email = String(formData.get('email') ?? '').trim().toLowerCase()
+  const patch: Partial<Profile> = { name }
+  // Admins globais continuam admins; os outros podem passar entre engenheiro e admin da equipa
+  if (current.team_id && formData.has('role')) patch.role = formData.get('role') === 'admin' ? 'admin' : 'engineer'
+
+  if (email && email !== current.email) {
+    const { error } = await service.auth.admin.updateUserById(id, { email, email_confirm: true })
+    if (error) throw new Error(error.message.includes('already') ? 'Esse email já está registado.' : error.message)
+    patch.email = email
+  }
+  await service.from('profiles').update(patch).eq('id', id)
+  revalidatePath('/', 'layout')
+}
+
+export async function updateTechnician(formData: FormData) {
+  await requireAdmin()
+  const name = String(formData.get('name') ?? '').trim()
+  if (!name) return
+  await createClient().from('technicians').update({ name }).eq('id', String(formData.get('id')))
+  revalidatePath('/', 'layout')
+}
