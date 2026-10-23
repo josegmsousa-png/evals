@@ -46,42 +46,39 @@ export default async function Admin({ searchParams }: { searchParams: { periodo?
       </div>
 
       <div className="mt-6 card overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
-            <tr>
-              <th className="px-3 sm:px-5 py-3">Técnico</th>
-              <th className="px-3 sm:px-5 py-3 sm:w-1/3">Média</th>
-              <th className="px-3 sm:px-5 py-3 text-right">Resp.</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {ranked.map((r) => (
-              <tr key={r.technician.id} className="hover:bg-slate-50">
-                <td className="px-3 sm:px-5 py-3">
-                  <Link href={`/admin/tecnico/${r.technician.id}?periodo=${period.id}`} className="font-medium hover:text-brand-700">
-                    {r.technician.name}
-                  </Link>
-                </td>
-                <td className="px-3 sm:px-5 py-3">
-                  <div className="flex items-center gap-3">
-                    <ScoreBadge score={r.score} />
-                    <div className="hidden sm:block flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                      {r.score != null && (
-                        <div className="h-full rounded-full" style={{
-                          width: `${(r.score / MAX_SCORE) * 100}%`,
-                          backgroundColor: LEVELS[levelForScore(r.score)].color,
-                        }} />
-                      )}
-                    </div>
-                  </div>
-                </td>
-                <td className="px-3 sm:px-5 py-3 text-right tabular-nums text-slate-500">
-                  {r.evaluations.length} / {evaluators.length}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[1fr_minmax(0,1fr)_auto_auto] items-center gap-x-3 sm:gap-x-5 bg-slate-50 px-3 sm:px-5 py-3 text-xs uppercase tracking-wide text-slate-500">
+          <span>Técnico</span>
+          <span className="hidden sm:block">Média</span>
+          <span className="text-right">Resp.</span>
+          <span className="w-4" />
+        </div>
+        <div className="divide-y divide-slate-100">
+          {ranked.map((r) => (
+            <Link key={r.technician.id} href={`/admin/tecnico/${r.technician.id}?periodo=${period.id}`}
+              className="group grid grid-cols-[1fr_auto_auto] sm:grid-cols-[1fr_minmax(0,1fr)_auto_auto] items-center gap-x-3 sm:gap-x-5 px-3 sm:px-5 py-3 text-sm hover:bg-brand-50/60">
+              <span className="flex min-w-0 items-center gap-2">
+                <span className="truncate font-medium group-hover:text-brand-700">{r.technician.name}</span>
+                <span className="sm:hidden"><ScoreBadge score={r.score} /></span>
+              </span>
+              <span className="hidden sm:flex items-center gap-3">
+                <ScoreBadge score={r.score} />
+                <span className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                  {r.score != null && (
+                    <span className="block h-full rounded-full" style={{
+                      width: `${(r.score / MAX_SCORE) * 100}%`,
+                      backgroundColor: LEVELS[levelForScore(r.score)].color,
+                    }} />
+                  )}
+                </span>
+              </span>
+              <span className="text-right tabular-nums text-slate-500">{r.evaluations.length} / {evaluators.length}</span>
+              <svg className="h-4 w-4 text-slate-400 group-hover:text-brand-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+                <path d="M7.21 14.77a.75.75 0 01.02-1.06L11.17 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" />
+              </svg>
+            </Link>
+          ))}
+          {ranked.length === 0 && <p className="px-5 py-4 text-sm text-slate-500">Sem técnicos nesta equipa.</p>}
+        </div>
       </div>
     </Shell>
   )
