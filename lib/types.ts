@@ -8,7 +8,7 @@ export type Profile = {
   team_id: string | null // null = administrador global
 }
 
-export type Team = { id: string; name: string; position: number }
+export type Team = { id: string; name: string; position: number; label?: string }
 
 export type Technician = { id: string; name: string; active: boolean; team_id: string }
 

@@ -1,6 +1,6 @@
 # Avaliações
 
-Avaliação anual dos técnicos pelos engenheiros · MV Dispatch (Tejo, Guadiana, Douro, Mondego).
+Avaliação anual dos técnicos pelos engenheiros · MV/LV Dispatch (MV Dispatch Tejo, Guadiana, Douro, Mondego e LV Dispatch).
 
 - Cada equipa tem os seus engenheiros, técnicos, períodos e critérios. As equipas não veem os dados umas das outras.
 - Cada engenheiro avalia todos os técnicos da sua equipa (6 critérios ponderados, escala Mau → Excelente, comentário por critério).
@@ -19,7 +19,7 @@ Next.js 14 · Supabase (base de dados + login com email e palavra-passe) · Verc
 ### 1. Supabase (projecto novo)
 
 1. Criar um projecto novo em [supabase.com](https://supabase.com).
-2. **SQL Editor** → colar e correr `supabase/migrations/001_init.sql` e depois `002_password_login.sql` e `003_teams.sql` (pela ordem).
+2. **SQL Editor** → colar e correr `supabase/migrations/001_init.sql` e depois `002_password_login.sql`, `003_teams.sql` e `004_lv_dispatch.sql` (pela ordem).
 3. **SQL Editor** → colar e correr `supabase/seed.sql` (período 2026, critérios da folha actual e lista de técnicos).
 4. **Authentication → Users → Add user** → criar o teu utilizador com o teu email e uma palavra-passe (marcar *Auto Confirm User*).
 5. **SQL Editor** → tornar-te administrador:

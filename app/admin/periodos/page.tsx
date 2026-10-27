@@ -41,7 +41,7 @@ export default async function Periodos() {
         {isGlobalAdmin(me) && (
           <label className="w-full flex items-center gap-2 text-sm text-slate-700">
             <input type="checkbox" name="all_teams" className="h-4 w-4 accent-brand-600" />
-            Criar em todas as equipas (Tejo, Guadiana, Douro e Mondego)
+            Criar em todas as equipas
           </label>
         )}
         <p className="w-full text-xs text-slate-500">Os critérios e pesos são copiados do período mais recente de cada equipa.</p>
